@@ -44,4 +44,23 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.create')->with('status', 'Tarefa criada com sucesso!');
     }
+
+
+    /**
+     * Exibe os detalhes de uma tarefa específica.
+     *
+     * Raciocínio de Isolamento de Dados:
+     * O Laravel faz o Route Model Binding injetando a instância de $task pelo ID da URL.
+     * Validamos se o `user_id` da tarefa confere com o ID do usuário autenticado.
+     * Se forem diferentes, abortamos com erro HTTP 403 (Acesso Negado).
+     */
+    public function show(Request $request, Task $task): View
+    {
+        if ($task->user_id !== $request->user()->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        return view('tasks.show', compact('task'));
+    }
+
 }
