@@ -4,9 +4,14 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Detalhes da Tarefa') }}
             </h2>
-            <a href="{{ route('tasks.index') }}" class="text-sm font-medium text-indigo-600 hover:underline">
-                &larr; Voltar para a lista
-            </a>
+            <div class="space-x-4">
+                <a href="{{ route('tasks.edit', $task) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">
+                    Editar Tarefa
+                </a>
+                <a href="{{ route('tasks.index') }}" class="text-sm font-medium text-gray-600 hover:underline">
+                    &larr; Voltar
+                </a>
+            </div>
         </div>
     </x-slot>
 

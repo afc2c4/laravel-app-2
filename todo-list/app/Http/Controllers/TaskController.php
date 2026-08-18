@@ -10,6 +10,19 @@ use Illuminate\View\View;
 class TaskController extends Controller
 {
     /**
+     * Lista apenas as tarefas do usuário autenticado.
+     */
+    public function index(Request $request): View
+    {
+        $tasks = $request->user()
+            ->tasks()
+            ->latest()
+            ->get();
+
+        return view('tasks.index', compact('tasks'));
+    }
+
+    /**
      * Exibe o formulário de criação de tarefa.
      *
      * Raciocínio: Retorna a view tasks.create renderizada dentro do layout autenticado.
@@ -42,7 +55,7 @@ class TaskController extends Controller
             'is_completed' => false,
         ]);
 
-        return redirect()->route('tasks.create')->with('status', 'Tarefa criada com sucesso!');
+        return redirect()->route('tasks.index')->with('status', 'Tarefa criada com sucesso!');
     }
 
 
@@ -61,6 +74,49 @@ class TaskController extends Controller
         }
 
         return view('tasks.show', compact('task'));
+    }
+
+    /**
+     * Exibe o formulário de edição da tarefa.
+     *
+     * Raciocínio de Posse:
+     * Antes de exibir a view, validamos se a tarefa pertence ao usuário logado.
+     * Caso contrário, a requisição é bloqueada imediatamente com erro 403.
+     */
+    public function edit(Request $request, Task $task): View
+    {
+        if ($task->user_id !== $request->user()->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        return view('tasks.edit', compact('task'));
+    }
+
+    /**
+     * Atualiza os dados da tarefa existente.
+     *
+     * Raciocínio de Negócio:
+     * 1. Verificação de Posse: Impede edição indevida via manipulação de ID na URL.
+     * 2. Validação: Assegura que o título continue preenchido e dentro dos limites.
+     * 3. Atualização Segura: Aplica apenas os atributos validados diretamente no model.
+     */
+    public function update(Request $request, Task $task): RedirectResponse
+    {
+        if ($task->user_id !== $request->user()->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $task->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        return redirect()->route('tasks.index')->with('status', 'Tarefa atualizada com sucesso!');
     }
 
 }
