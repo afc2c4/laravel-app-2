@@ -119,4 +119,23 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('status', 'Tarefa atualizada com sucesso!');
     }
 
+    /**
+     * Remove a tarefa especificada do banco de dados.
+     *
+     * Raciocínio de Segurança e Integridade:
+     * 1. Verificação de Posse: Garantimos que o usuário autenticado é o dono do registro.
+     * 2. Exclusão Atômica: O método $task->delete() emite uma query DELETE precisa por ID.
+     * 3. Redirecionamento: Retorna para a listagem com mensagem de feedback de sucesso.
+     */
+    public function destroy(Request $request, Task $task): RedirectResponse
+    {
+        if ($task->user_id !== $request->user()->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $task->delete();
+
+        return redirect()->route('tasks.index')->with('status', 'Tarefa excluída com sucesso!');
+    }
+
 }

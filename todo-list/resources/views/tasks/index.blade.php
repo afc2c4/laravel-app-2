@@ -59,9 +59,20 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $task->created_at ? $task->created_at->format('d/m/Y H:i') : 'N/A' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                            <a href="{{ route('tasks.show', $task) }}" class="text-gray-600 hover:text-gray-900">Ver</a>
-                                            <a href="{{ route('tasks.edit', $task) }}" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="inline-flex items-center space-x-3">
+                                                <a href="{{ route('tasks.show', $task) }}" class="text-gray-600 hover:text-gray-900">Ver</a>
+                                                <a href="{{ route('tasks.edit', $task) }}" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+
+                                                {{-- Formulário de Exclusão com Confirmação --}}
+                                                <form method="POST" action="{{ route('tasks.destroy', $task) }}" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                                        Excluir
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

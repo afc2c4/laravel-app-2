@@ -116,4 +116,40 @@ class TaskCrudTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    /**
+     * Teste 6: Usuário pode deletar sua própria tarefa.
+     */
+    public function test_user_can_delete_their_own_task(): void
+    {
+        $user = User::factory()->create();
+        $task = $user->tasks()->create(['title' => 'Tarefa para Excluir', 'is_completed' => false]);
+
+        $response = $this->actingAs($user)->delete(route('tasks.destroy', $task));
+
+        $response->assertRedirect(route('tasks.index'));
+        $this->assertDatabaseMissing('tasks', [
+            'id' => $task->id,
+        ]);
+    }
+
+    /**
+     * Teste 7: Usuário NÃO pode deletar tarefa de outro usuário (Erro 403).
+     */
+    public function test_user_cannot_delete_another_users_task(): void
+    {
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        $taskB = $userB->tasks()->create(['title' => 'Tarefa de B', 'is_completed' => false]);
+
+        $response = $this->actingAs($userA)->delete(route('tasks.destroy', $taskB));
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('tasks', [
+            'id' => $taskB->id,
+        ]);
+    }
+
+
 }
