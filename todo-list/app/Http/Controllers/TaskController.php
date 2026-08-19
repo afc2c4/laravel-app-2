@@ -138,4 +138,29 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('status', 'Tarefa excluída com sucesso!');
     }
 
+    /**
+     * Alterna o estado de conclusão da tarefa (Toggle: Concluída <-> Pendente).
+     *
+     * Raciocínio Técnico de Negócio:
+     * 1. Verificação de Posse: Garante que apenas o proprietário altere o estado da tarefa.
+     * 2. Inversão Booleana: Atribui !$task->is_completed,
+     * simplificando a lógica sem necessidade de passar parâmetros adicionais no payload.
+     * 3. Redirecionamento: Retorna para a listagem com mensagem dinâmica de feedback.
+     */
+    public function toggleComplete(Request $request, Task $task): RedirectResponse
+    {
+        if ($task->user_id !== $request->user()->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $task->update([
+            'is_completed' => !$task->is_completed,
+        ]);
+
+        $mensagem = $task->is_completed
+            ? 'Tarefa marcada como concluída!'
+            : 'Tarefa reaberta como pendente!';
+
+        return redirect()->route('tasks.index')->with('status', $mensagem);
+    }
 }

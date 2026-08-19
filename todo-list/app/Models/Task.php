@@ -24,6 +24,10 @@ class Task extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'is_completed' => 'boolean',
+    ];
+    
     /**
      * Define o relacionamento: Uma Tarefa pertence a um Usuário (N:1).
      *

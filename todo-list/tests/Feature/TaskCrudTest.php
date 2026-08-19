@@ -151,5 +151,24 @@ class TaskCrudTest extends TestCase
         ]);
     }
 
+    /**
+     * Teste 8: Usuário pode alternar o status da tarefa (Toggle).
+     */
+    public function test_user_can_toggle_task_completion(): void
+    {
+        $user = User::factory()->create();
+        $task = $user->tasks()->create(['title' => 'Tarefa Pendente', 'is_completed' => false]);
+
+        // Alterna para Concluída
+        $response = $this->actingAs($user)->patch(route('tasks.toggle', $task));
+        $response->assertRedirect(route('tasks.index'));
+        $this->assertTrue($task->fresh()->is_completed);
+
+        // Alterna de volta para Pendente
+        $response = $this->actingAs($user)->patch(route('tasks.toggle', $task));
+        $response->assertRedirect(route('tasks.index'));
+        $this->assertFalse($task->fresh()->is_completed);
+    }
+
 
 }

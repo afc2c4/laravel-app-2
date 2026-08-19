@@ -33,7 +33,7 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status (Clique p/ alternar)</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criada em</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -41,19 +41,26 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($tasks as $task)
-                                    <tr>
+                                    <tr class="{{ $task->is_completed ? 'bg-gray-50' : '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @if ($task->is_completed)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Concluída
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    Pendente
-                                                </span>
-                                            @endif
+                                            {{-- Botão de Toggle de Status --}}
+                                            <form method="POST" action="{{ route('tasks.toggle', $task) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" title="Clique para alterar o status" class="inline-flex items-center">
+                                                    @if ($task->is_completed)
+                                                        <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 hover:bg-green-200 transition">
+                                                            ✓ Concluída
+                                                        </span>
+                                                    @else
+                                                        <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition">
+                                                            ○ Pendente
+                                                        </span>
+                                                    @endif
+                                                </button>
+                                            </form>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $task->is_completed ? 'line-through text-gray-400' : 'text-gray-900' }}">
                                             {{ $task->title }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -64,7 +71,6 @@
                                                 <a href="{{ route('tasks.show', $task) }}" class="text-gray-600 hover:text-gray-900">Ver</a>
                                                 <a href="{{ route('tasks.edit', $task) }}" class="text-indigo-600 hover:text-indigo-900">Editar</a>
 
-                                                {{-- Formulário de Exclusão com Confirmação --}}
                                                 <form method="POST" action="{{ route('tasks.destroy', $task) }}" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
                                                     @csrf
                                                     @method('DELETE')
